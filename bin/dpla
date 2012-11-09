@@ -1,0 +1,36 @@
+#!/usr/bin/env ruby
+require 'dpla'
+require 'dpla/helpers'
+
+require 'ruby-dpla'
+require 'slop'
+
+include DPLA::Helpers
+
+opts = Slop.parse(:autocreate => true) do
+  banner <<-EOS
+dpla [options] <search term>
+Simple commandline interface to the DPLA API
+
+You can use any option you can use with the API. For example:
+dpla --title washington
+EOS
+  on :h, :help, 'Display this message' do
+    puts help
+    exit 0
+  end
+end
+
+if opts.options.empty?
+  params = {:q => args.join('%20')}
+else
+  params = parse opts
+end
+
+params[:page_size] = 5
+query = DPLA::Query.new params
+
+query.results.each do |result|
+  lovely_print result
+  puts "--"
+end
